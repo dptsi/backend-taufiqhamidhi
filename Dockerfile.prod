@@ -1,0 +1,35 @@
+# Stage 1: Build the Go binary
+FROM golang:1.16 AS builder
+
+# Set the working directory inside the container
+WORKDIR /app
+
+# Copy the Go mod and sum files
+COPY go.mod go.sum ./
+
+# Download and cache Go modules
+RUN go mod download
+
+# Copy the source code
+COPY . .
+
+# Build the Go binary
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o app .
+
+# Stage 2: Create a minimal container
+FROM alpine:latest
+
+# Install certificates
+RUN apk --no-cache add ca-certificates
+
+# Set the working directory inside the container
+WORKDIR /root/
+
+# Copy the binary from the builder stage
+COPY --from=builder /app/app .
+
+# Expose the desired port (replace <port> with your actual port number)
+EXPOSE 33000
+
+# Set the entry point of the container
+CMD ["./app"]

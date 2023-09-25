@@ -1,0 +1,19 @@
+version: "3.7"
+services:
+  app:
+    build: .
+    image: base-go-app
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./src:/app
+    environment:
+      - VIRTUAL_HOST=${VIRTUAL_HOST}
+      - VIRTUAL_PORT=${VIRTUAL_PORT}
+      - SELF_SIGNED_HOST=${SELF_SIGNED_HOST}
+    networks:
+      - nginx-proxy-network
+
+networks:
+    nginx-proxy-network:
+        external: true
